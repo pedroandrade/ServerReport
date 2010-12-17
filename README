@@ -1,0 +1,9 @@
+This is a simple tool to analize medievo server
+OBS: this tool is run only in python3.x
+
+their functions:
+	->Analyze the system load (BSD Only)
+	->Analyze disk space (Generic System)
+	->Send Email to admins
+	->Daemon Function (Double fork Magick), runs every 60 seconds
+	->creating log in serverReport.log
