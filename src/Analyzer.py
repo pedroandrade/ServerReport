@@ -1,6 +1,22 @@
 '''
 Created on 26/10/2010
 @author: Pedro Andrade
+
+
+ServerReport is a simple tool to analyze and report
+Copyright (C) 2010  Pedro Andrade <pedro.rjandrade@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+
 '''
 from MailSender import MailSender
 from SimpleLogger import SimpleLogger
@@ -16,7 +32,7 @@ class Analyzer(object):
     '''
     Constructor
     '''
-    def __init__(self, send_mail=True):
+    def __init__(self, send_mail=False):
         self.stdin = os.devnull
         self.stout = os.devnull
         self.flagToSendMail = False
@@ -68,6 +84,16 @@ class Analyzer(object):
         stringx = pipe.stdout.read().decode(self.encodeType).split(" ")
         for x in stringx:
             print(x)
+            
+    def get_load_avg_linux(self):
+        commands = ['cat', '/proc/loadavg']
+        pipe = subprocess.Popen(commands, stdout=subprocess.PIPE)
+        line = pipe.stdout.read().decode(self.encodeType).split(" ")
+        a1, a5, a15 = map(float, line[0:3])
+        if a5 > 0.5 or a15 >= 1.0:
+            self.logger.debug("="*30)
+            self.logger.debug("Carga Alta [1 minute: %.2f , 5 minutes: %.2f, 15 minutes%.2f]" % (a1, a5, a15))
+            self.logger.debug("="*30)
     '''
         Return process list of all users
     '''
@@ -97,13 +123,17 @@ class Analyzer(object):
             line = str(line.strip(), self.encodeType)
             if re.search(pattern1, line):
                 if not self.flagToSendMail:
-                    sender = MailSender("%s %s" % (message, line), "CAPACITY WARNING 90%")
-                    sender.sendmail()
-                    self.flagToSendMail = True
+                    if self.send_mail:
+                        sender = MailSender("%s %s" % (message, line), "CAPACITY WARNING 90%")
+                        sender.sendmail()
+                        self.flagToSendMail = True
                     self.logger.warning("CAPACITY WARNING 90% %s %s" % (message, line))
             if re.search(pattern2, line):
                 if not self.flagToSendMail2:
-                    sender = MailSender("%s %s" % (message, line), "CAPACITY WARNING 98% Oh My God, hurry up.")
-                    sender.sendmail()
-                    self.flagToSendMail2 = True
+                    if self.send_mail:
+                        sender = MailSender("%s %s" % (message, line), "CAPACITY WARNING 98% Oh My God, hurry up.")
+                        sender.sendmail()
+                        self.flagToSendMail2 = True
                     self.logger.critical("CAPACITY WARNING 98% Oh My God, hurry up. %s %s" % (message, line))
+a = Analyzer()
+a.get_load_avg_linux()

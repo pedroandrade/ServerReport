@@ -14,5 +14,5 @@ class MyDaemon(Daemon):
             analizer = Analyzer()
             while True:
                 time.sleep(60)
-                analizer.get_load_average()
+                analizer.get_load_avg_linux()
                 analizer.get_file_system()

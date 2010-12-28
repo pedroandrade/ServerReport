@@ -11,7 +11,7 @@ class SimpleLogger(object):
 
 
     def __init__(self, level):
-        self.LOG_FILENAME = '/var/log/serverReport.log'
+        self.LOG_FILENAME = '/home/pedro/serverReport.log'
         self.level = level
         logging.basicConfig(filename=self.LOG_FILENAME, level=self.level)
         self.logger = logging.getLogger(self.LOG_FILENAME)
